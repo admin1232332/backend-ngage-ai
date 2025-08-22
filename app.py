@@ -339,12 +339,7 @@ def generate_feedback_api():
         # Check for conversational or irrelevant inputs
         conversational_patterns = [
             'hi', 'hello', 'hey', 'how are you', 'good morning', 'good afternoon',
-            'good evening', 'what', 'who', 'when', 'where', 'why', 'test',
-            'can you', 'could you', 'please help', 'thanks', 'thank you',
-            # Additional common irrelevant patterns
-            'lol', 'haha', 'ok', 'okay', 'yes', 'no', 'maybe', 'idk', 'hmm',
-            'testing', 'test123', '123', 'abc', 'xyz', 'asdf', 'qwerty',
-            'whatever', 'anything', 'something', 'nothing', 'idc', 'dunno'
+            'good evening'
         ]
 
         # Email and message patterns that indicate non-feedback content
