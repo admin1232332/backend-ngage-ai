@@ -1,6 +1,0 @@
-id,user_context,selected_tone,selected_style,generated_feedback,timestamp,user_ip,validation_score,context_sentiment,session_id
-3,client meeting went well,positive,formal,The client meeting demonstrated professional excellence and strong communication skills.,2025-08-18 02:37:31.650611,127.0.0.1,0.92,positive,sample-3
-2,presentation thoda fast tha,constructive,casual,Consider slowing down the presentation pace for better audience engagement.,2025-08-18 02:37:31.650611,127.0.0.1,0.88,negative,sample-2
-1,Good work on project delivery,positive,balanced,Excellent project delivery with timely completion.,2025-08-18 02:37:31.650245,127.0.0.1,0.95,positive,sample-1
-5,Test context for database integration,positive,balanced,This is a test feedback generated for database testing purposes.,2025-08-17 21:38:22.000000,127.0.0.1,0.85,neutral,test-session-123
-4,Test context for database integration,positive,balanced,This is a test feedback generated for database testing purposes.,2025-08-17 21:37:59.000000,127.0.0.1,0.85,neutral,test-session-123

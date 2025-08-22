@@ -1,9 +1,3 @@
-#!/usr/bin/env python3
-"""
-Simple Flask server for nGAGE AI Feedback Writer
-Connects the HTML frontend to AWS Bedrock
-Enhanced with PostgreSQL database logging
-"""
 
 import os
 import json
@@ -338,6 +332,86 @@ def generate_feedback_api():
         
         if not context:
             return jsonify({'error': 'Context cannot be empty'}), 400
+            
+        # Validate context length and quality
+        word_count = len(context.split())
+        
+        # Check for conversational or irrelevant inputs
+        conversational_patterns = [
+            'hi', 'hello', 'hey', 'how are you', 'good morning', 'good afternoon',
+            'good evening', 'what', 'who', 'when', 'where', 'why', 'test',
+            'can you', 'could you', 'please help', 'thanks', 'thank you',
+            # Additional common irrelevant patterns
+            'lol', 'haha', 'ok', 'okay', 'yes', 'no', 'maybe', 'idk', 'hmm',
+            'testing', 'test123', '123', 'abc', 'xyz', 'asdf', 'qwerty',
+            'whatever', 'anything', 'something', 'nothing', 'idc', 'dunno'
+        ]
+
+        # Email and message patterns that indicate non-feedback content
+        email_patterns = [
+            'email about', 'letter about', 'message about',
+            'write an email', 'write a letter', 'write a message',
+            'draft an email', 'draft a letter',
+            'compose an email', 'compose a letter',
+            'dear', 'subject:', 'regarding:', 'ref:', 're:', 'fw:', 'fwd:'
+        ]
+        
+        # Work/performance related keywords that should be present
+        work_related_keywords = [
+            'work', 'project', 'task', 'performance', 'job', 'team', 'meeting',
+            'presentation', 'report', 'deadline', 'client', 'manager', 'lead',
+            'completed', 'finished', 'delivered', 'helped', 'supported', 'achieved',
+            'improved', 'developed', 'created', 'managed', 'organized', 'led',
+            'responsibility', 'skills', 'quality', 'time', 'effort', 'contribution',
+            'performed', 'executed', 'implemented', 'coordinated', 'solved',
+            'analyzed', 'trained', 'mentored', 'collaborated',
+            # Attendance and leave related keywords
+            'leave', 'attendance', 'absence', 'present', 'punctual', 'timely',
+            'schedule', 'timing', 'hours', 'days', 'sick leave', 'vacation'
+        ]
+        
+        context_lower = context.lower()
+        words = context_lower.split()
+        first_few_words = ' '.join(words[:4]).lower()  # Get first 4 words
+        
+        # Check if this is a feedback request
+        is_feedback_request = 'feedback' in context_lower or (
+            'write' in first_few_words and 'feedback' in context_lower
+        )
+        
+        # First check for email/letter writing requests (but allow feedback requests)
+        if not is_feedback_request and any(pattern in context_lower for pattern in email_patterns):
+            return jsonify({
+                'error': 'I am not designed to write emails or letters. I can only provide feedback on work performance.',
+                'details': 'This tool is specifically for performance feedback. For emails, please use an email writing tool instead.'
+            }), 400
+            
+        # Then check for conversational or test patterns
+        if any(pattern in context_lower for pattern in conversational_patterns):
+            return jsonify({
+                'error': 'I am not allowed to process conversational inputs. Please enter proper context or notes about the work/performance you want feedback on.',
+                'details': 'Created by Bilal Rafiq - For feedback generation only.'
+            }), 400
+            
+        # Check if the input contains at least one work-related keyword
+        if not any(keyword in context_lower for keyword in work_related_keywords):
+            return jsonify({
+                'error': 'Please provide context related to work, tasks, performance, or achievements. Your input appears to be irrelevant.',
+                'details': 'The feedback system is designed for professional performance feedback only.'
+            }), 400
+            
+        # Check for extremely short or single-word responses that got through other filters
+        if len(words) < 3:
+            return jsonify({
+                'error': 'Please provide more detailed context about the work or performance.',
+                'details': 'Single words or very short phrases are not sufficient for meaningful feedback.'
+            }), 400
+            
+        if word_count < 5:  # Minimum 5 words for meaningful context
+            return jsonify({
+                'error': 'Please provide more context about the situation or performance you want feedback on (at least 5 words).',
+                'details': f'Current input: {word_count} words. Minimum required: 5 words.'
+            }), 400
         
         if tone not in ['positive', 'constructive']:
             return jsonify({'error': 'Invalid tone. Must be positive or constructive'}), 400
