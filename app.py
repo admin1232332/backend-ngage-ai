@@ -356,19 +356,6 @@ def generate_feedback_api():
             'dear', 'subject:', 'regarding:', 'ref:', 're:', 'fw:', 'fwd:'
         ]
         
-        # Work/performance related keywords that should be present
-        work_related_keywords = [
-            'work', 'project', 'task', 'performance', 'job', 'team', 'meeting',
-            'presentation', 'report', 'deadline', 'client', 'manager', 'lead',
-            'completed', 'finished', 'delivered', 'helped', 'supported', 'achieved',
-            'improved', 'developed', 'created', 'managed', 'organized', 'led',
-            'responsibility', 'skills', 'quality', 'time', 'effort', 'contribution',
-            'performed', 'executed', 'implemented', 'coordinated', 'solved',
-            'analyzed', 'trained', 'mentored', 'collaborated',
-            # Attendance and leave related keywords
-            'leave', 'attendance', 'absence', 'present', 'punctual', 'timely',
-            'schedule', 'timing', 'hours', 'days', 'sick leave', 'vacation'
-        ]
         
         context_lower = context.lower()
         words = context_lower.split()
@@ -393,12 +380,6 @@ def generate_feedback_api():
                 'details': 'Created by Bilal Rafiq - For feedback generation only.'
             }), 400
             
-        # Check if the input contains at least one work-related keyword
-        if not any(keyword in context_lower for keyword in work_related_keywords):
-            return jsonify({
-                'error': 'Please provide context related to work, tasks, performance, or achievements. Your input appears to be irrelevant.',
-                'details': 'The feedback system is designed for professional performance feedback only.'
-            }), 400
             
         # Check for extremely short or single-word responses that got through other filters
         if len(words) < 3:
