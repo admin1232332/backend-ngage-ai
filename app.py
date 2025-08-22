@@ -336,11 +336,6 @@ def generate_feedback_api():
         # Validate context length and quality
         word_count = len(context.split())
         
-        # Check for conversational or irrelevant inputs
-        conversational_patterns = [
-            'hi', 'hello', 'hey', 'how are you', 'good morning', 'good afternoon',
-            'good evening'
-        ]
 
         # Email and message patterns that indicate non-feedback content
         email_patterns = [
@@ -368,12 +363,6 @@ def generate_feedback_api():
                 'details': 'This tool is specifically for performance feedback. For emails, please use an email writing tool instead.'
             }), 400
             
-        # Then check for conversational or test patterns
-        if any(pattern in context_lower for pattern in conversational_patterns):
-            return jsonify({
-                'error': 'I am not allowed to process conversational inputs. Please enter proper context or notes about the work/performance you want feedback on.',
-                'details': 'Created by Bilal Rafiq - For feedback generation only.'
-            }), 400
             
             
         # Check for extremely short or single-word responses that got through other filters
