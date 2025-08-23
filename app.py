@@ -398,6 +398,8 @@ class AttributeRecommender:
         print(f"🤖 Client available: {self.client is not None}")
         print(f"📊 Total attributes available: {len(self.attributes_flat)}")
         
+        # User has confirmed context is complete, proceed with recommendations
+        
         if not self.client:
             print("⚠️ No AI client available, using fallback")
             return self._fallback_recommendation(context, max_recommendations)
@@ -849,6 +851,10 @@ def recommend_attributes_api():
         if not context:
             print("❌ Empty context provided")
             return jsonify({'error': 'Context cannot be empty'}), 400
+        
+        # Basic validation - user has already confirmed context is complete
+        if len(context) < 10:
+            return jsonify({'error': 'Context too short for meaningful suggestions'}), 400
         
         # Validate max_recommendations
         max_recommendations = min(max(max_recommendations, 1), 10)  # Between 1-10
