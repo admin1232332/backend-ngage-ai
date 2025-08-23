@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS feedback_logs (
     user_ip VARCHAR(45),
     validation_score DECIMAL(3,2),
     context_sentiment VARCHAR(10),
-    session_id VARCHAR(100)
+    session_id VARCHAR(100),
+    selected_attributes TEXT
 );
 
 -- Index for better query performance

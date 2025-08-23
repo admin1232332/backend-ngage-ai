@@ -76,7 +76,8 @@ class DatabaseManager:
                             user_ip TEXT,
                             validation_score REAL,
                             context_sentiment TEXT,
-                            session_id TEXT
+                            session_id TEXT,
+                            selected_attributes TEXT
                         )
                     """))
                 else:
@@ -92,9 +93,19 @@ class DatabaseManager:
                             user_ip VARCHAR(45),
                             validation_score DECIMAL(3,2),
                             context_sentiment VARCHAR(10),
-                            session_id VARCHAR(100)
+                            session_id VARCHAR(100),
+                            selected_attributes TEXT
                         )
                     """))
+                
+                # Add selected_attributes column if it doesn't exist (for existing databases)
+                try:
+                    conn.execute(text("ALTER TABLE feedback_logs ADD COLUMN selected_attributes TEXT"))
+                    print("✅ Added selected_attributes column to existing table")
+                except Exception as e:
+                    # Column might already exist, that's fine
+                    if "duplicate column name" not in str(e).lower() and "already exists" not in str(e).lower():
+                        print(f"ℹ️ Column addition note: {e}")
                 
                 # Create indexes
                 conn.execute(text("""
@@ -121,7 +132,8 @@ class DatabaseManager:
                     user_ip: Optional[str] = None,
                     validation_score: Optional[float] = None,
                     context_sentiment: Optional[str] = None,
-                    session_id: Optional[str] = None) -> bool:
+                    session_id: Optional[str] = None,
+                    selected_attributes: Optional[List[str]] = None) -> bool:
         """
         Log feedback generation to database
         
@@ -134,6 +146,7 @@ class DatabaseManager:
             validation_score: AI validation score (optional)
             context_sentiment: Detected context sentiment (optional)
             session_id: User session ID (optional)
+            selected_attributes: List of selected attributes (optional)
         
         Returns:
             bool: True if logged successfully, False otherwise
@@ -146,13 +159,19 @@ class DatabaseManager:
             if not session_id:
                 session_id = str(uuid.uuid4())
             
+            # Convert selected attributes to JSON string
+            attributes_json = None
+            if selected_attributes and len(selected_attributes) > 0:
+                import json
+                attributes_json = json.dumps(selected_attributes)
+            
             with self.engine.connect() as conn:
                 conn.execute(text("""
                     INSERT INTO feedback_logs 
                     (user_context, selected_tone, selected_style, generated_feedback, 
-                     user_ip, validation_score, context_sentiment, session_id)
+                     user_ip, validation_score, context_sentiment, session_id, selected_attributes)
                     VALUES (:context, :tone, :style, :feedback, :user_ip, 
-                            :validation_score, :context_sentiment, :session_id)
+                            :validation_score, :context_sentiment, :session_id, :selected_attributes)
                 """), {
                     'context': context[:1000],  # Limit context length
                     'tone': tone,
@@ -161,7 +180,8 @@ class DatabaseManager:
                     'user_ip': user_ip,
                     'validation_score': validation_score,
                     'context_sentiment': context_sentiment,
-                    'session_id': session_id
+                    'session_id': session_id,
+                    'selected_attributes': attributes_json
                 })
                 conn.commit()
                 
